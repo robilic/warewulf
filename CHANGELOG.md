@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a collection of useful functions from string for use in templates
 - Option to change the `ipmitool` escape character
 - New documentation for the hostlist syntax. #611
 - New documentation for development environment (Vagrant)
@@ -56,7 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create `/etc/systemd/network/10-persistent-net-<netdev>.link` file per network device
 
 ### Changed
-
+- The "replace" template function now maps directly to string.Replace instead
+  of wrapping with a hardcoded value of n
 - The primary hostname and warewulf server fqdn are now the canonical name in
   `/etc/hosts`
 - Refactored `profile add` command to make it alike `node add`. #658 #659 
