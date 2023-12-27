@@ -352,7 +352,30 @@ func RenderTemplateFile(fileName string, data TemplateStruct) (
 	writeFile = true
 	tmpl, err := template.New(path.Base(fileName)).Option("missingkey=default").Funcs(template.FuncMap{
 		// TODO: Fix for missingkey=zero
-		"Include":      templateFileInclude,
+		// Functions directly from from Strings 
+        "contains":     strings.Contains,
+        "count":        strings.Count,
+        "equalfold":    strings.EqualFold,
+        "fields":       strings.Fields,
+        "hasprefix":    strings.HasPrefix,
+        "hassuffix":    strings.HasSuffix,
+        "replace":      strings.Replace,
+        "replaceall":   strings.ReplaceAll,
+        "split":        strings.Split,
+        "tolower":      strings.ToLower,
+        "toupper":      strings.ToUpper,
+        "trim":         strings.Trim,
+        "trimleft":     strings.TrimLeft,
+        "trimright":    strings.TrimRight,
+        "trimspace":    strings.TrimSpace,
+        "trimprefix":   strings.TrimPrefix,
+        "trimsuffix":   strings.TrimSuffix,
+        // Aliases/Wrappers to the above string functions
+        "tr": func(source, old, new string) string {
+			return strings.Replace(source, old, new, -1)
+        },
+        // End stuff from Strings.
+        "Include":      templateFileInclude,
 		"IncludeFrom":  templateContainerFileInclude,
 		"IncludeBlock": templateFileBlock,
 		"basename":     path.Base,
@@ -376,15 +399,6 @@ func RenderTemplateFile(fileName string, data TemplateStruct) (
 			wwlog.Debug("not backup for %s", fileName)
 			backupFile = false
 			return ""
-		},
-		"split": func(s string, d string) []string {
-			return strings.Split(s, d)
-		},
-		"tr": func(source, old, new string) string {
-			return strings.Replace(source, old, new, -1)
-		},
-		"replace": func(source, old, new string) string {
-			return strings.Replace(source, old, new, -1)
 		},
 		// }).ParseGlob(path.Join(OverlayDir, destFile+".ww*"))
 	}).ParseGlob(fileName)
