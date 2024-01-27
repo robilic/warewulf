@@ -9,13 +9,13 @@ import (
 	"strings"
 
 	"github.com/containers/image/v5/types"
-	"github.com/hpcng/warewulf/internal/pkg/api/routes/wwapiv1"
-	"github.com/hpcng/warewulf/internal/pkg/container"
-	"github.com/hpcng/warewulf/internal/pkg/node"
-	"github.com/hpcng/warewulf/internal/pkg/util"
-	"github.com/hpcng/warewulf/internal/pkg/warewulfd"
-	"github.com/hpcng/warewulf/internal/pkg/wwlog"
 	"github.com/pkg/errors"
+	"github.com/warewulf/warewulf/internal/pkg/api/routes/wwapiv1"
+	"github.com/warewulf/warewulf/internal/pkg/container"
+	"github.com/warewulf/warewulf/internal/pkg/node"
+	"github.com/warewulf/warewulf/internal/pkg/util"
+	"github.com/warewulf/warewulf/internal/pkg/warewulfd"
+	"github.com/warewulf/warewulf/internal/pkg/wwlog"
 )
 
 func ContainerCopy(cbp *wwapiv1.ContainerCopyParameter) (err error) {
@@ -402,6 +402,74 @@ func ContainerShow(csp *wwapiv1.ContainerShowParameter) (response *wwapiv1.Conta
 		KernelVersion: kernelVersion,
 	}
 	return
+}
+
+func ContainerRename(crp *wwapiv1.ContainerRenameParameter) (err error) {
+	// rename the container source folder
+	sourceDir := container.SourceDir(crp.ContainerName)
+	destDir := container.SourceDir(crp.TargetName)
+	err = os.Rename(sourceDir, destDir)
+	if err != nil {
+		return err
+	}
+
+	err = container.DeleteImage(crp.ContainerName)
+	if err != nil {
+		wwlog.Warn("Could not remove image files for %s: %w", crp.ContainerName, err)
+	}
+
+	if crp.Build {
+		err = container.Build(crp.TargetName, true)
+		if err != nil {
+			return err
+		}
+	}
+
+	// update the nodes profiles container name
+	nodeDB, err := node.New()
+	if err != nil {
+		return err
+	}
+
+	nodes, err := nodeDB.FindAllNodes()
+	if err != nil {
+		return err
+	}
+	for _, node := range nodes {
+		if node.ContainerName.Get() == crp.ContainerName {
+			node.ContainerName.Set(crp.TargetName)
+			if err := nodeDB.NodeUpdate(node); err != nil {
+				return err
+			}
+		}
+	}
+
+	profiles, err := nodeDB.FindAllProfiles()
+	if err != nil {
+		return err
+	}
+	for _, profile := range profiles {
+		if profile.ContainerName.Get() == crp.ContainerName {
+			profile.ContainerName.Set(crp.TargetName)
+			if err := nodeDB.ProfileUpdate(profile); err != nil {
+				return err
+			}
+		}
+	}
+
+	err = nodeDB.Persist()
+	if err != nil {
+		return err
+	}
+
+	err = warewulfd.DaemonStatus()
+	if err != nil {
+		// warewulfd is not running, skip
+		return nil
+	}
+
+	// else reload daemon to apply new changes
+	return warewulfd.DaemonReload()
 }
 
 // Private helpers

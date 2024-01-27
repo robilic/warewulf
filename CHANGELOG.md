@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added https://github.com/Masterminds/sprig functions to templates
+- ipxe script to boot node from local disk.
 - Option to change the `ipmitool` escape character
 - New documentation for the hostlist syntax. #611
 - New documentation for development environment (Vagrant)
@@ -19,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OpenSUSE Leap build rebased to 15.5 (15.3 is EOL)
 - New build for Rocky Linux 9
 - Add nightly release support. #969
+- Add container rename command. #583
 
 ### Fixed
 - Make Variables.mk consistent with spec file w.r.t. WWPROVISIONDIR, e.g.
@@ -37,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The network device "OnBoot" parameter correctly configures the ONBOOT ifcfg
   parameter. (#644)
 - Add support for listing profile/node via comma-separated values. #739
-- Sort the node list returned entries by name. 
+- Sort the node list returned entries by name.
 - 'wwctl node edit' inconsistent state with warewulfd.  #691
 - Add `--parents` option to `overlay import` subcommand to create necessary
   parent folder.  #608
@@ -55,13 +57,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug when using `wwctl container import --force` to replace an existing container
   will generate an error #474
 - Create `/etc/systemd/network/10-persistent-net-<netdev>.link` file per network device
+- Fix the issue that the same tag added in `node set` is ignored. #967
+- Change too-verbose warning message level from `Warn` to `Debug`. #1025
 
 ### Changed
 - The "replace" template function now maps directly to string.Replace instead
   of wrapping with a hardcoded value of n
 - The primary hostname and warewulf server fqdn are now the canonical name in
   `/etc/hosts`
-- Refactored `profile add` command to make it alike `node add`. #658 #659 
+- Refactored `profile add` command to make it alike `node add`. #658 #659
 - The ifcfg ONBOOT parameter is no longer statically `true`, so unconfigured
   interfaces may not be enabled by default. (#644)
 - Write log messages to stderr rather than stdout. #768
@@ -74,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * `warwulfconf print` which will print the used `warewulf.conf`. If there is no valid
      `warewulf.conf` a valid configuration is provided, prefilled with default values
      and an IP configuration derived from the network configuration of the host
-- All paths can now be configured in `warewulf.conf`, check the paths section of of 
+- All paths can now be configured in `warewulf.conf`, check the paths section of of
    `wwctl --emptyconf genconfig warewulfconf print` for the available paths.
 - Added experimental dnsmasq support.
 - fix SIGSEV when build host has no network #907
@@ -120,12 +124,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - only write IPMI if write is true
 - Don't show an error if image files for containers can't be found. #933
 - Make configured paths available in overlays as `.Path` #960
-- Introduced IPXESOURCE environment variable which allows to specify the path to iPXE 
+- Introduced IPXESOURCE environment variable which allows to specify the path to iPXE
   binaries not provided by warewulf
 - use distrubtion ipxe binaries in the rpm
 - Allow absolute iPXE paths in warewulf.conf
 - Support importing containers with symlinked `/bin/sh` #797
 - Don't panic on malformed passwd #527
+- Update iPXE building script
+- Send Info, Recv, Send, and Out messages to stdout; and others to stderr
+- grub in combination can now be set as boot method with `warewulf.grubboot: true` in
+  `warewulf.conf`. For unknown nodes `grub.efi` and `shim.efi` will be extracted from
+  the host running warewulf. If node has container it will get these binaries from the
+  container image.
+- Added support for booting nodes with grub. Enable this behavior using
+  warewulf.grubboot: true in warewulf.conf. For unknown nodes, grub.efi
+  and shim.efi are extracted from the Warewulf host. If the booted node
+  has a container these binaries are extracted from the container image.
+- overlays from different profiles for one node are now merged, overlays can be
+  excluded with ~ prefix and in listings are listed as !{excluded_profile} #885
+- modules are now correctly included
+- move hostlist into internal alongside other warewulf code #804
 
 ## [4.4.0] 2023-01-18
 

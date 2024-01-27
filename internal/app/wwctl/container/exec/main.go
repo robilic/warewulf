@@ -11,10 +11,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/hpcng/warewulf/internal/pkg/container"
-	"github.com/hpcng/warewulf/internal/pkg/util"
-	"github.com/hpcng/warewulf/internal/pkg/wwlog"
 	"github.com/spf13/cobra"
+	"github.com/warewulf/warewulf/internal/pkg/container"
+	"github.com/warewulf/warewulf/internal/pkg/util"
+	"github.com/warewulf/warewulf/internal/pkg/wwlog"
 )
 
 /*
@@ -133,7 +133,6 @@ func CobraRunE(cmd *cobra.Command, args []string) error {
 		wwlog.Error("Could not build container %s: %s", containerName, err)
 		os.Exit(1)
 	}
-
 	return nil
 }
 func SetBinds(myBinds []string) {

@@ -18,6 +18,7 @@ Welcome to the Warewulf User Guide!
    Warewulf Initialization <contents/initialization>
    Container Management <contents/containers>
    Kernel Management <contents/kernel>
+   Boot Management <contents/boot-management>
    Node Configuration <contents/nodeconfig>
    Node Profiles <contents/profiles>
    Warewulf Overlays <contents/overlays>
@@ -53,7 +54,7 @@ Welcome to the Warewulf User Guide!
 .. toctree::
    :maxdepth: 2
    :caption: Reference
-   :glob: 
+   :glob:
 
    reference/*
 

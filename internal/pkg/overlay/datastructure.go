@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	warewulfconf "github.com/hpcng/warewulf/internal/pkg/config"
-	"github.com/hpcng/warewulf/internal/pkg/node"
-	"github.com/hpcng/warewulf/internal/pkg/wwlog"
+	warewulfconf "github.com/warewulf/warewulf/internal/pkg/config"
+	"github.com/warewulf/warewulf/internal/pkg/node"
+	"github.com/warewulf/warewulf/internal/pkg/wwlog"
 )
 
 /*
@@ -49,19 +49,15 @@ func InitStruct(nodeInfo *node.NodeInfo) TemplateStruct {
 	controller := warewulfconf.Get()
 	nodeDB, err := node.New()
 	if err != nil {
-		wwlog.Error("%s", err)
-		os.Exit(1)
+		wwlog.Warn("Problems opening nodes.conf: %s", err)
 	}
-	allNodes, err := nodeDB.FindAllNodes()
+	tstruct.AllNodes, err = nodeDB.FindAllNodes()
 	if err != nil {
-		wwlog.Error("%s", err)
-		os.Exit(1)
+		wwlog.Warn("couldn't get all nodes: %s", err)
 	}
 	// init some convenience vars
 	tstruct.Id = nodeInfo.Id.Get()
 	tstruct.Hostname = nodeInfo.Id.Get()
-	// Backwards compatibility for templates using "Keys"
-	tstruct.AllNodes = allNodes
 	tstruct.Nfs = *controller.NFS
 	tstruct.Dhcp = *controller.DHCP
 	tstruct.Tftp = *controller.TFTP

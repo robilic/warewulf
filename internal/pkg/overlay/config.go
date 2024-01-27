@@ -5,8 +5,8 @@ import (
 	"path"
 	"strings"
 
-	warewulfconf "github.com/hpcng/warewulf/internal/pkg/config"
-	"github.com/hpcng/warewulf/internal/pkg/wwlog"
+	warewulfconf "github.com/warewulf/warewulf/internal/pkg/config"
+	"github.com/warewulf/warewulf/internal/pkg/wwlog"
 )
 
 func OverlaySourceTopDir() string {
@@ -43,7 +43,7 @@ func OverlayImage(nodeName string, context string, overlayNames []string) string
 	var name string
 	if context != "" {
 		if len(overlayNames) > 0 {
-			wwlog.Warn("context(%v) and overlays(%v) specified: prioritizing context(%v)",
+			wwlog.Debug("context(%v) and overlays(%v) specified: prioritizing context(%v)",
 				context, overlayNames, context)
 		}
 		name = "__" + strings.ToUpper(context) + "__.img"

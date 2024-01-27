@@ -40,7 +40,7 @@ wwclient: $(config) $(call godeps,cmd/wwclient/main.go)
 	CGO_ENABLED=0 GOOS=linux go build -mod vendor -a -ldflags "-extldflags -static" -o wwclient cmd/wwclient/main.go
 
 update_configuration: $(config) $(call godeps,cmd/update_configuration/update_configuration.go)
-	go build -X 'github.com/hpcng/warewulf/internal/pkg/node.ConfigFile=./etc/nodes.conf'" \
+	go build -X 'github.com/warewulf/warewulf/internal/pkg/node.ConfigFile=./etc/nodes.conf'" \
 	    -mod vendor -tags "$(WW_GO_BUILD_TAGS)" -o update_configuration cmd/update_configuration/update_configuration.go
 
 wwapid: $(config) $(call godeps,internal/app/api/wwapid/wwapid.go)
@@ -94,8 +94,10 @@ install: build docs
 	install -d -m 0755 $(DESTDIR)$(WWCHROOTDIR)
 	install -d -m 0755 $(DESTDIR)$(WWPROVISIONDIR)
 	install -d -m 0755 $(DESTDIR)$(WWOVERLAYDIR)/wwinit/$(WWCLIENTDIR)
+	install -d -m 0755 $(DESTDIR)$(WWOVERLAYDIR)/host/$(TFTPDIR)/warewulf/
 	install -d -m 0755 $(DESTDIR)$(WWCONFIGDIR)/examples
 	install -d -m 0755 $(DESTDIR)$(WWCONFIGDIR)/ipxe
+	install -d -m 0755 $(DESTDIR)$(WWCONFIGDIR)/grub
 	install -d -m 0755 $(DESTDIR)$(BASHCOMPDIR)
 	install -d -m 0755 $(DESTDIR)$(MANDIR)/man1
 	install -d -m 0755 $(DESTDIR)$(MANDIR)/man5
@@ -112,6 +114,8 @@ install: build docs
 	test -f $(DESTDIR)$(DATADIR)/warewulf/defaults.conf || install -m 0644 etc/defaults.conf $(DESTDIR)$(DATADIR)/warewulf/defaults.conf
 	for f in etc/examples/*.ww; do install -m 0644 $$f $(DESTDIR)$(WWCONFIGDIR)/examples/; done
 	for f in etc/ipxe/*.ipxe; do install -m 0644 $$f $(DESTDIR)$(WWCONFIGDIR)/ipxe/; done
+	install -m 0644 etc/grub/grub.cfg.ww $(DESTDIR)$(WWCONFIGDIR)/grub/grub.cfg.ww
+	install -m 0644 etc/grub/chainload.ww $(DESTDIR)$(WWOVERLAYDIR)/host$(TFTPDIR)/warewulf/grub.cfg.ww
 	(cd overlays && find * -type f -exec install -D -m 0644 {} $(DESTDIR)$(WWOVERLAYDIR)/{} \;)
 	(cd overlays && find * -type d -exec mkdir -pv $(DESTDIR)$(WWOVERLAYDIR)/{} \;)
 	(cd overlays && find * -type l -exec cp -av {} $(DESTDIR)$(WWOVERLAYDIR)/{} \;)

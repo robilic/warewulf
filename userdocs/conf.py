@@ -14,7 +14,7 @@ release = 'main'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autosectionlabel']
+extensions = ['sphinx.ext.autosectionlabel','sphinx.ext.graphviz']
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -37,7 +37,7 @@ html_theme_options = {
 
 html_context = {
     'display_github': True,
-    'github_user': 'hpcng',
+    'github_user': 'warewulf',
     'github_repo': 'warewulf',
     'github_version': 'main',
     'conf_py_path': '/userdocs/',

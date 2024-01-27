@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/hpcng/warewulf/internal/pkg/util"
-	"github.com/hpcng/warewulf/internal/pkg/wwlog"
+	"github.com/warewulf/warewulf/internal/pkg/util"
+	"github.com/warewulf/warewulf/internal/pkg/wwlog"
 )
 
 /*
@@ -206,6 +206,11 @@ func recursiveSetter(source, target interface{}, nameArg string, setter func(*En
 								newEntr := new(Entry)
 								setter(newEntr, sourceIter.Value().String(), nameArg)
 								targetValue.Elem().Field(i).SetMapIndex(sourceIter.Key(), reflect.ValueOf(newEntr))
+							} else {
+								// update the entry with latest value
+								if entry, ok := targetValue.Elem().Field(i).MapIndex(sourceIter.Key()).Interface().(*Entry); ok {
+									setter(entry, sourceIter.Value().String(), nameArg)
+								}
 							}
 						}
 					} else {
