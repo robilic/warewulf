@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added a collection of useful functions from string for use in templates
+- Added https://github.com/Masterminds/sprig functions to templates
 - Option to change the `ipmitool` escape character
 - New documentation for the hostlist syntax. #611
 - New documentation for development environment (Vagrant)
