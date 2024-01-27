@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	"github.com/pkg/errors"
 	"github.com/warewulf/warewulf/internal/pkg/node"
 	"github.com/warewulf/warewulf/internal/pkg/util"
@@ -350,32 +351,13 @@ func RenderTemplateFile(fileName string, data TemplateStruct) (
 	err error) {
 	backupFile = true
 	writeFile = true
-	tmpl, err := template.New(path.Base(fileName)).Option("missingkey=default").Funcs(template.FuncMap{
-		// TODO: Fix for missingkey=zero
-		// Functions directly from from Strings 
-        "contains":     strings.Contains,
-        "count":        strings.Count,
-        "equalfold":    strings.EqualFold,
-        "fields":       strings.Fields,
-        "hasprefix":    strings.HasPrefix,
-        "hassuffix":    strings.HasSuffix,
-        "replace":      strings.Replace,
-        "replaceall":   strings.ReplaceAll,
-        "split":        strings.Split,
-        "tolower":      strings.ToLower,
-        "toupper":      strings.ToUpper,
-        "trim":         strings.Trim,
-        "trimleft":     strings.TrimLeft,
-        "trimright":    strings.TrimRight,
-        "trimspace":    strings.TrimSpace,
-        "trimprefix":   strings.TrimPrefix,
-        "trimsuffix":   strings.TrimSuffix,
-        // Aliases/Wrappers to the above string functions
-        "tr": func(source, old, new string) string {
+
+	// Build our FuncMap
+	funcMap := template.FuncMap{
+		"tr": func(source, old, new string) string {
 			return strings.Replace(source, old, new, -1)
-        },
-        // End stuff from Strings.
-        "Include":      templateFileInclude,
+		},
+		"Include":      templateFileInclude,
 		"IncludeFrom":  templateContainerFileInclude,
 		"IncludeBlock": templateFileBlock,
 		"basename":     path.Base,
@@ -400,12 +382,20 @@ func RenderTemplateFile(fileName string, data TemplateStruct) (
 			backupFile = false
 			return ""
 		},
-		// }).ParseGlob(path.Join(OverlayDir, destFile+".ww*"))
-	}).ParseGlob(fileName)
+	}
+
+	// Merge sprig.FuncMap with our FuncMap
+	for key, value := range sprig.FuncMap() {
+		funcMap[key] = value
+	}
+
+	// Create the template with the merged FuncMap
+	tmpl, err := template.New(path.Base(fileName)).Option("missingkey=default").Funcs(funcMap).ParseGlob(fileName)
 	if err != nil {
 		err = errors.Wrap(err, "could not parse template "+fileName)
 		return
 	}
+
 	err = tmpl.Execute(&buffer, data)
 	if err != nil {
 		err = errors.Wrap(err, "could not execute template")
