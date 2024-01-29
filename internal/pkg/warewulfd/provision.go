@@ -226,13 +226,8 @@ func ProvisionSend(w http.ResponseWriter, req *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
 				return
 			}
-			funcMap := template.FuncMap{}
-			// Merge sprig.FuncMap with our FuncMap
-			for key, value := range sprig.FuncMap() {
-				funcMap[key] = value
-			}
 
-			tmpl, err := template.New(stage_file).Funcs(funcMap).ParseFiles(stage_file)
+			tmpl, err := template.New(stage_file).Funcs(sprig.FuncMap()).ParseFiles(stage_file)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				wwlog.ErrorExc(err, "")
