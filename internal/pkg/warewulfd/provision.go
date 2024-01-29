@@ -10,6 +10,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	warewulfconf "github.com/warewulf/warewulf/internal/pkg/config"
 	"github.com/warewulf/warewulf/internal/pkg/container"
 	"github.com/warewulf/warewulf/internal/pkg/kernel"
@@ -225,8 +226,13 @@ func ProvisionSend(w http.ResponseWriter, req *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
 				return
 			}
+			funcMap := template.FuncMap{}
+			// Merge sprig.FuncMap with our FuncMap
+			for key, value := range sprig.FuncMap() {
+				funcMap[key] = value
+			}
 
-			tmpl, err := template.ParseFiles(stage_file)
+			tmpl, err := template.New(stage_file).Funcs(funcMap).ParseFiles(stage_file)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				wwlog.ErrorExc(err, "")
